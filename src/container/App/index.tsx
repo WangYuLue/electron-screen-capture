@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import { ipcRenderer } from 'electron';
 import './index.scss';
 
-
-
 class App extends Component {
   onScreenCapture() {
     ipcRenderer.send('ScreenCapture:Open')
