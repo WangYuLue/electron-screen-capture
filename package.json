@@ -1,0 +1,73 @@
+{
+  "name": "electron-demos",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start-electron": "npm run build-main && cross-env ENV=development electron .",
+    "start": "webpack-dev-server --config webpack.renderer.config.js",
+    "build-render": "webpack --config webpack.renderer.config.js",
+    "build-main": "webpack --config webpack.main.config.js",
+    "build-electron": "electron-builder build -mwl",
+    "build": "npm install && npm run build-render && npm run build-main && npm run build-electron"
+  },
+  "build": {
+    "productName": "electron-demos",
+    "files": [
+      "dist/",
+      "main.js"
+    ],
+    "dmg": {
+      "contents": [
+        {
+          "x": 110,
+          "y": 150
+        },
+        {
+          "x": 240,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "directories": {
+      "buildResources": "assets",
+      "output": "release"
+    }
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/react": "^16.9.31",
+    "@types/react-dom": "^16.9.6",
+    "cross-env": "^6.0.3",
+    "css-loader": "^3.4.2",
+    "electron": "5.0.8",
+    "electron-builder": "21.1.1",
+    "html-webpack-plugin": "^4.0.4",
+    "node-sass": "^4.13.1",
+    "npm": "^6.12.0",
+    "sass-loader": "^8.0.2",
+    "style-loader": "^1.1.3",
+    "ts-loader": "^6.2.2",
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3"
+  },
+  "dependencies": {
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  }
+}
