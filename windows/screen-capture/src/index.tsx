@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { CaptureEditor, getScreenSources } from '../utils';
+import { CaptureEditor, getScreenSources, ISelectRect } from '../utils';
 import {
   remote,
   ipcRenderer,
@@ -27,7 +27,7 @@ class ScreenCapture extends Component {
     const $btnOk = document.getElementById('js-tool-ok');
     this.capture.init($canvas as HTMLCanvasElement, $bg, dataURL);
 
-    let onDrag = (selectRect: any) => {
+    let onDrag = (selectRect: ISelectRect) => {
       $toolbar.style.display = 'none';
       $sizeInfo.style.display = 'block';
       $sizeInfo.innerText = `${selectRect.w} * ${selectRect.h}`;

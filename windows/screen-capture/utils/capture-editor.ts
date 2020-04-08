@@ -20,7 +20,6 @@ const ANCHORS = [
 ];
 
 class CaptureEditor extends Event {
-
   constructor() {
     super();
     this.disabled = false;
@@ -54,7 +53,7 @@ class CaptureEditor extends Event {
     document.removeEventListener('mouseup', this.onMouseUp);
   }
 
-  onMouseDown = (e: any) => {
+  onMouseDown = (e: MouseEvent) => {
     if (this.disabled) {
       return;
     }
@@ -108,7 +107,7 @@ class CaptureEditor extends Event {
     }
   }
 
-  onMouseDrag = (e: any) => {
+  onMouseDrag = (e: MouseEvent) => {
     if (this.disabled) {
       return;
     }
@@ -292,7 +291,7 @@ class CaptureEditor extends Event {
     this.ctx.stroke();
   }
 
-  onMouseMove = (e: any) => {
+  onMouseMove = (e: MouseEvent) => {
     if (this.disabled) {
       return;
     }
@@ -308,7 +307,7 @@ class CaptureEditor extends Event {
       } = this.selectRect;
       let selectAnchor, selectIndex = -1;
       if (this.anchors) {
-        this.anchors.forEach((item: any, i: any) => {
+        this.anchors.forEach((item: [number, number], i: number) => {
           const [x, y] = item;
           if (Math.abs(pageX - x) <= 10 && Math.abs(pageY - y) <= 10) {
             selectAnchor = [x, y];
@@ -331,7 +330,7 @@ class CaptureEditor extends Event {
     }
   }
 
-  onMouseUp = (e: any) => {
+  onMouseUp = (e: MouseEvent) => {
     if (this.disabled) {
       return;
     }

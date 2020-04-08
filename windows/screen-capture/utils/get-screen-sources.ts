@@ -5,58 +5,57 @@ import {
 const os = require('os');
 
 function getScreenSources(callback: (str: string) => void) {
-  document.body.style.opacity = '0'
-  let oldCursor = document.body.style.cursor
-  document.body.style.cursor = 'none'
+  document.body.style.opacity = '0';
+  let oldCursor = document.body.style.cursor;
+  document.body.style.cursor = 'none';
 
   const handleStream = (stream: MediaStream) => {
-    document.body.style.cursor = oldCursor
-    document.body.style.opacity = '1'
+    document.body.style.cursor = oldCursor;
+    document.body.style.opacity = '1';
     // Create hidden video tag
-    let video: any;
-    video = document.createElement('video')
-    video.autoplay = 'autoplay'
-    video.style.cssText = 'position:absolute;top:-10000px;left:-10000px;'
+    const video = document.createElement('video');
+    video.autoplay = true;
+    video.style.cssText = 'position:absolute;top:-10000px;left:-10000px;';
     // Event connected to stream
 
-    let loaded = false
+    let loaded = false;
     video.onplaying = () => {
       if (loaded) return;
-      loaded = true
+      loaded = true;
       // Set video ORIGINAL height (screenshot)
-      video.style.height = video.videoHeight + 'px' // videoHeight
-      video.style.width = video.videoWidth + 'px' // videoWidth
+      video.style.height = video.videoHeight + 'px'; // videoHeight
+      video.style.width = video.videoWidth + 'px'; // videoWidth
 
       // Create canvas
-      let canvas = document.createElement('canvas')
-      canvas.width = video.videoWidth
-      canvas.height = video.videoHeight
-      let ctx = canvas.getContext('2d')
+      let canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      let ctx = canvas.getContext('2d');
       // Draw video on canvas
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
       if (callback) {
         // Save screenshot to png - base64
-        callback(canvas.toDataURL('image/png'))
+        callback(canvas.toDataURL('image/png'));
       } else {
         // console.log('Need callback!')
       }
 
       // Remove hidden video tag
-      video.remove()
+      video.remove();
       try {
-        stream.getTracks()[0].stop()
+        stream.getTracks()[0].stop();
       } catch (e) {
         // nothing
       }
-    }
-    video.srcObject = stream
-    document.body.appendChild(video)
-  }
+    };
+    video.srcObject = stream;
+    document.body.appendChild(video);
+  };
 
-  const handleError = (e: any) => {
+  const handleError = (e: Event) => {
     // console.log(e)
-  }
+  };
 
   if (os.platform() === 'win32') {
     desktopCapturer.getSources({
@@ -76,13 +75,13 @@ function getScreenSources(callback: (str: string) => void) {
               maxHeight: 8000,
             },
           },
-        }
-        const stream: MediaStream = await navigator.mediaDevices.getUserMedia(config)
-        handleStream(stream)
+        };
+        const stream: MediaStream = await navigator.mediaDevices.getUserMedia(config);
+        handleStream(stream);
       } catch (e) {
-        handleError(e)
+        handleError(e);
       }
-    })
+    });
   } else {
     const config: any = {
       audio: false,
@@ -96,13 +95,13 @@ function getScreenSources(callback: (str: string) => void) {
           maxHeight: 8000,
         },
       },
-    }
+    };
     navigator.mediaDevices.getUserMedia(config).then((e) => {
-      handleStream(e)
-    }).catch(handleError)
+      handleStream(e);
+    }).catch(handleError);
   }
 }
 
 export {
   getScreenSources
-} 
+}; 
