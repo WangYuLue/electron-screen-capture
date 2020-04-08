@@ -1,6 +1,6 @@
 const Event = require('events');
-import { screen } from 'electron';
-import { dataURLtoImage, imagetoCanvas } from '@utils';
+import { screen, ipcRenderer } from 'electron';
+import { dataURLtoImage, imagetoCanvas, canvastoDataURL } from '@utils';
 
 const CREATE_RECT = 1;
 const MOVING_RECT = 2;
@@ -350,7 +350,7 @@ class CaptureEditor extends Event {
     this.startPoint = null;
   }
 
-  getImageUrl = () => {
+  getImageUrl = async () => {
     const scaleFactor = this.scaleFactor;
     const {
       x, y, w, h,
@@ -358,13 +358,22 @@ class CaptureEditor extends Event {
     if (w && h) {
       let imageData = this.bgCtx.getImageData(x * scaleFactor, y * scaleFactor, w * scaleFactor, h * scaleFactor);
       let canvas = document.createElement('canvas');
-      canvas.width = w;
-      canvas.height = h;
+      canvas.width = w * scaleFactor;
+      canvas.height = h * scaleFactor;
       let ctx = canvas.getContext('2d');
       ctx.putImageData(imageData, 0, 0);
-      return canvas.toDataURL();
+      // return canvas.toDataURL();
+      let dataURL = canvas.toDataURL();
+      return await this.scaleDataURL(dataURL, 1 / scaleFactor);
     }
     return '';
+  }
+
+  scaleDataURL = async (dataURL: string, scale: number) => {
+    const image = await dataURLtoImage(dataURL);
+    const canvas = await imagetoCanvas(image, { scale });
+    const newDataURL = await canvastoDataURL(canvas, 1);
+    return newDataURL;
   }
 
   disable = () => {

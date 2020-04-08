@@ -2,6 +2,16 @@ interface IBaseConfig {
   [key: string]: any;
 }
 
+export enum EImageType {
+  'PNG' = 'image/png',
+  'JPEG' = 'image/jpeg',
+  'GIF' = 'image/gif'
+}
+
+export function checkImageType(type: EImageType) {
+  return ['image/png', 'image/jpeg', 'image/gif'].some(i => i === type);
+}
+
 export interface Image2CanvasConfig extends IBaseConfig {
   width?: number,
   height?: number,
@@ -88,4 +98,11 @@ export async function imagetoCanvas(image: HTMLImageElement, config: Image2Canva
       ctx.drawImage(image, 0, 0, cvs.width, cvs.height);
   }
   return cvs;
+};
+
+export async function canvastoDataURL(canvas: HTMLCanvasElement, quality: number = 0.92, type: EImageType = EImageType.PNG): Promise<string> {
+  if (!checkImageType(type)) {
+    type = EImageType.JPEG;
+  }
+  return canvas.toDataURL(type, quality);
 };

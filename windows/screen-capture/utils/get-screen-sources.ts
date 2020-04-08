@@ -40,7 +40,6 @@ function getScreenSources(callback: (str: string) => void) {
       } else {
         // console.log('Need callback!')
       }
-
       // Remove hidden video tag
       video.remove();
       try {

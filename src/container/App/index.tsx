@@ -6,6 +6,8 @@ import './index.scss';
 class App extends Component {
   componentDidMount() {
     ipcRenderer.on('ScreenCapture:Complete', async (e: any, data: { url: string }) => {
+      console.log(data);
+
       const img = await dataURLtoImage(data.url);
       const constainer$ = document.getElementById('image-container');
       constainer$.innerHTML = '';

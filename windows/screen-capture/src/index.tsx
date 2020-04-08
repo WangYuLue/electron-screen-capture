@@ -61,9 +61,9 @@ class ScreenCapture extends Component {
       ipcRenderer.send('ScreenCapture:Close');
     });
 
-    $btnOk.addEventListener('click', () => {
+    $btnOk.addEventListener('click', async () => {
       if (!this.capture.selectRect) return;
-      let url = this.capture.getImageUrl();
+      let url = await this.capture.getImageUrl();
       ipcRenderer.send('ScreenCapture:Complete', {
         url,
       });

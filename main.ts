@@ -131,5 +131,7 @@ ipcMain.on('ScreenCapture:Complete', (event: any, data: { url: string }) => {
   mainWindow.webContents.send('ScreenCapture:Complete', data);
   closeCaptureScreen();
 });
-
+ipcMain.on('Debug', (event: any, data: any) => {
+  console.log(data);
+});
 app.whenReady().then(createWindow);
