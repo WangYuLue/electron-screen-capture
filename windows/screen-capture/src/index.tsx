@@ -1,33 +1,22 @@
 import React, { Component } from 'react';
-import { CaptureEditor } from '../utils';
+import { CaptureEditor, getScreenSources } from '../utils';
 import {
-  desktopCapturer,
   remote,
   ipcRenderer,
   screen
 } from 'electron';
 import './index.scss';
 
-const fs = require('fs');
-
-
-
 class ScreenCapture extends Component {
   capture = new CaptureEditor()
   componentDidMount() {
     const win = remote.getCurrentWindow();
     win.hide();
-    const display = screen.getPrimaryDisplay();
-    desktopCapturer.getSources({
-      types: ['screen'],
-      thumbnailSize: display.size,
-    }, async (error, sources) => {
+    getScreenSources((dataURL) => {
+      console.log(dataURL);
       win.show();
-      if (!error) {
-        const dataURL = sources[0].thumbnail.toDataURL();
-        this.startCapture(dataURL);
-      }
-    });
+      this.startCapture(dataURL);
+    })
   }
 
   startCapture(dataURL: string) {
@@ -51,8 +40,7 @@ class ScreenCapture extends Component {
       $sizeInfo.style.left = `${selectRect.x}px`
     }
     this.capture.on('start-dragging', onDrag)
-    this.capture.on('start-dragging', onDrag)
-      .on('dragging', onDrag)
+    this.capture.on('dragging', onDrag)
 
     const onDragEnd = () => {
       if (this.capture.selectRect) {
@@ -69,15 +57,6 @@ class ScreenCapture extends Component {
       }
     }
     this.capture.on('end-dragging', onDragEnd)
-
-    // ipcRenderer.on('capture-screen', (e: any, data: any) => {
-    //   const { type, screenId } = data;
-    //   if (type === 'select') {
-    //     if (screenId && screenId !== currentScreen.id) {
-    //       this.capture.disable()
-    //     }
-    //   }
-    // })
 
     this.capture.on('reset', () => {
       $toolbar.style.display = 'none'
@@ -101,22 +80,18 @@ class ScreenCapture extends Component {
       }
       let url = this.capture.getImageUrl()
       // remote.getCurrentWindow().hide()
-      console.log({ url });
-
+      // console.log({ url });
       ipcRenderer.send('capture-screen', {
         type: 'complete',
         url,
       })
-
     }
     $btnOk.addEventListener('click', selectCapture)
-
   }
 
   componentWillUnmount() {
     this.capture.destroy();
   }
-
 
   render() {
     return (

@@ -91,3 +91,4 @@ export async function imagetoCanvas(image: HTMLImageElement, config: Image2Canva
 };
 
 export * from './capture-editor';
+export * from './get-screen-sources';
