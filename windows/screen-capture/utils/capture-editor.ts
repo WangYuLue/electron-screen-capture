@@ -21,25 +21,26 @@ const ANCHORS = [
 
 class CaptureEditor extends Event {
 
-  constructor($canvas: HTMLCanvasElement, $bg: HTMLElement, imageSrc: string) {
+  constructor() {
     super()
-    this.$canvas = $canvas
-    this.imageSrc = imageSrc
     this.disabled = false
     let currentScreen = screen.getPrimaryDisplay()
     this.scaleFactor = currentScreen.scaleFactor
     this.screenWidth = currentScreen.bounds.width
     this.screenHeight = currentScreen.bounds.height
+
+  }
+
+  async init($canvas: HTMLCanvasElement, $bg: HTMLElement, imageSrc: string) {
+    this.$canvas = $canvas
+    this.imageSrc = imageSrc
     this.$bg = $bg
     this.ctx = $canvas.getContext('2d')
 
-    this.init()
-  }
-
-  async init() {
     this.$bg.style.backgroundImage = `url(${this.imageSrc})`
     this.$bg.style.backgroundSize = `${this.screenWidth}px ${this.screenHeight}px`
     let img = await dataURLtoImage(this.imageSrc);
+
     let canvas = await imagetoCanvas(img);
     this.bgCtx = canvas.getContext('2d')
 

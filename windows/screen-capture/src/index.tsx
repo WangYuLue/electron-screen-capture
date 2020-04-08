@@ -10,23 +10,17 @@ import './index.scss';
 
 const fs = require('fs');
 
-let currentWindow = remote.getCurrentWindow()
 
-const getCurrentScreen = () => {
-  let { x, y } = currentWindow.getBounds()
-  return screen.getAllDisplays().filter((d: any) => d.bounds.x === x && d.bounds.y === y)[0]
-}
-
-const currentScreen = getCurrentScreen()
 
 class ScreenCapture extends Component {
+  capture = new CaptureEditor()
   componentDidMount() {
     const win = remote.getCurrentWindow();
     win.hide();
-    const display = getCurrentScreen();
+    const display = screen.getPrimaryDisplay();
     desktopCapturer.getSources({
       types: ['screen'],
-      thumbnailSize: display.size
+      thumbnailSize: display.size,
     }, async (error, sources) => {
       win.show();
       if (!error) {
@@ -41,11 +35,10 @@ class ScreenCapture extends Component {
     const $bg = document.getElementById('js-bg')
     const $sizeInfo = document.getElementById('js-size-info')
     const $toolbar = document.getElementById('js-toolbar')
-
     const $btnClose = document.getElementById('js-tool-close')
     const $btnOk = document.getElementById('js-tool-ok')
     const $btnReset = document.getElementById('js-tool-reset')
-    let capture = new CaptureEditor($canvas as HTMLCanvasElement, $bg, dataURL)
+    this.capture.init($canvas as HTMLCanvasElement, $bg, dataURL);
     let onDrag = (selectRect: any) => {
       $toolbar.style.display = 'none'
       $sizeInfo.style.display = 'block'
@@ -57,35 +50,36 @@ class ScreenCapture extends Component {
       }
       $sizeInfo.style.left = `${selectRect.x}px`
     }
-    capture.on('start-dragging', onDrag)
-    capture.on('dragging', onDrag)
+    this.capture.on('start-dragging', onDrag)
+    this.capture.on('start-dragging', onDrag)
+      .on('dragging', onDrag)
 
     const onDragEnd = () => {
-      if (capture.selectRect) {
+      if (this.capture.selectRect) {
         ipcRenderer.send('capture-screen', {
           type: 'select',
-          screenId: currentScreen.id,
+          screenId: screen.getPrimaryDisplay().id,
         })
         const {
           r, b,
-        } = capture.selectRect
+        } = this.capture.selectRect
         $toolbar.style.display = 'flex'
         $toolbar.style.top = `${b + 15}px`
         $toolbar.style.right = `${window.screen.width - r}px`
       }
     }
-    capture.on('end-dragging', onDragEnd)
+    this.capture.on('end-dragging', onDragEnd)
 
-    ipcRenderer.on('capture-screen', (e: any, data: any) => {
-      const { type, screenId } = data;
-      if (type === 'select') {
-        if (screenId && screenId !== currentScreen.id) {
-          capture.disable()
-        }
-      }
-    })
+    // ipcRenderer.on('capture-screen', (e: any, data: any) => {
+    //   const { type, screenId } = data;
+    //   if (type === 'select') {
+    //     if (screenId && screenId !== currentScreen.id) {
+    //       this.capture.disable()
+    //     }
+    //   }
+    // })
 
-    capture.on('reset', () => {
+    this.capture.on('reset', () => {
       $toolbar.style.display = 'none'
       $sizeInfo.style.display = 'none'
     })
@@ -98,14 +92,14 @@ class ScreenCapture extends Component {
     })
 
     $btnReset.addEventListener('click', () => {
-      capture.reset()
+      this.capture.reset()
     })
 
     let selectCapture = () => {
-      if (!capture.selectRect) {
+      if (!this.capture.selectRect) {
         return
       }
-      let url = capture.getImageUrl()
+      let url = this.capture.getImageUrl()
       // remote.getCurrentWindow().hide()
       console.log({ url });
 
@@ -120,7 +114,7 @@ class ScreenCapture extends Component {
   }
 
   componentWillUnmount() {
-
+    this.capture.destroy();
   }
 
 
