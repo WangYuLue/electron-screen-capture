@@ -8,8 +8,8 @@
     "start": "webpack-dev-server --config webpack.renderer.config.js",
     "build-render": "webpack --config webpack.renderer.config.js",
     "build-main": "webpack --config webpack.main.config.js",
-    "build-electron": "electron-builder build -mwl",
-    "build": "npm install && npm run build-render && npm run build-main && npm run build-electron"
+    "build-electron": "electron-builder build -mw",
+    "build": "npm run build-render && npm run build-main && npm run build-electron"
   },
   "build": {
     "productName": "electron-demos",

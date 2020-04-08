@@ -29,7 +29,7 @@ const openWindow = (window: Electron.BrowserWindow, page: string, query?: any) =
   } else {
     const u = url.format({
       query,
-      pathname: path.join(__dirname, `${page}.html`),
+      pathname: path.join(__dirname, `dist/${page}.html`),
       protocol: 'file:',
       slashes: true
     });
