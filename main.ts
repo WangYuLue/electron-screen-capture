@@ -13,6 +13,8 @@ const url = require('url')
 
 let captureWins: any[] = [];
 
+let mainWindow: BrowserWindow;
+
 const isDev = process.env.ENV === 'development';
 
 const openWindow = (window: Electron.BrowserWindow, page: string, query?: any) => {
@@ -35,7 +37,7 @@ const openWindow = (window: Electron.BrowserWindow, page: string, query?: any) =
   }
 };
 
-const captureScreen = () => {
+const createCaptureScreen = () => {
   if (captureWins.length) return;
   // let displays = screen.getAllDisplays()
   let displays = [screen.getPrimaryDisplay()]
@@ -47,7 +49,7 @@ const captureScreen = () => {
       height: display.bounds.height,
       x: display.bounds.x,
       y: display.bounds.y,
-      // transparent: true,
+      transparent: true,
       frame: false,
       movable: false,
       resizable: false,
@@ -75,18 +77,24 @@ const captureScreen = () => {
       captureWin.blur()
     }
 
-    captureWin.on('closed', () => {
-      captureWins.forEach(win => win.close())
-    })
+    // captureWin.on('closed', () => {
+    //   captureWins.forEach(win => win.close())
+    // })
 
     return captureWin;
   })
+}
 
+const closeCaptureScreen = () => {
+  if (captureWins) {
+    captureWins.forEach(win => win.close())
+    captureWins = []
+  }
 }
 
 function createWindow() {
   // 创建浏览器窗口
-  let win = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
@@ -94,10 +102,11 @@ function createWindow() {
     }
   })
 
+
   if (isDev) {
-    win.loadURL(`http://localhost:3000`);
+    mainWindow.loadURL(`http://localhost:3000`);
   } else {
-    win.loadFile(path.resolve(__dirname, './dist/index.html'));
+    mainWindow.loadFile(path.resolve(__dirname, './dist/index.html'));
   }
 
   globalShortcut.register('Esc', () => {
@@ -111,7 +120,16 @@ function createWindow() {
 // 监听渲染程序发来的事件
 ipcMain.on('ScreenCapture:Open', () => {
   console.log('Main get ScreenCapture:Open');
-  captureScreen();
+  createCaptureScreen();
+})
+ipcMain.on('ScreenCapture:Close', () => {
+  console.log('Main get ScreenCapture:Close');
+  closeCaptureScreen();
+})
+ipcMain.on('ScreenCapture:Complete', (event: any, data: { url: string }) => {
+  console.log('Main get ScreenCapture:Complete');
+  mainWindow.webContents.send('ScreenCapture:Complete', data);
+  closeCaptureScreen();
 })
 
 app.whenReady().then(createWindow)

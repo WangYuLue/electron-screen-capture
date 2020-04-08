@@ -9,12 +9,11 @@ import './index.scss';
 
 class ScreenCapture extends Component {
   capture = new CaptureEditor()
+  win = remote.getCurrentWindow();
   componentDidMount() {
-    const win = remote.getCurrentWindow();
-    win.hide();
+    this.win.hide();
     getScreenSources((dataURL) => {
-      console.log(dataURL);
-      win.show();
+      this.win.show();
       this.startCapture(dataURL);
     })
   }
@@ -26,8 +25,8 @@ class ScreenCapture extends Component {
     const $toolbar = document.getElementById('js-toolbar')
     const $btnClose = document.getElementById('js-tool-close')
     const $btnOk = document.getElementById('js-tool-ok')
-    const $btnReset = document.getElementById('js-tool-reset')
     this.capture.init($canvas as HTMLCanvasElement, $bg, dataURL);
+
     let onDrag = (selectRect: any) => {
       $toolbar.style.display = 'none'
       $sizeInfo.style.display = 'block'
@@ -58,35 +57,17 @@ class ScreenCapture extends Component {
     }
     this.capture.on('end-dragging', onDragEnd)
 
-    this.capture.on('reset', () => {
-      $toolbar.style.display = 'none'
-      $sizeInfo.style.display = 'none'
-    })
-
     $btnClose.addEventListener('click', () => {
-      ipcRenderer.send('capture-screen', {
-        type: 'close',
-      })
-      window.close()
+      ipcRenderer.send('ScreenCapture:Close')
     })
 
-    $btnReset.addEventListener('click', () => {
-      this.capture.reset()
-    })
-
-    let selectCapture = () => {
-      if (!this.capture.selectRect) {
-        return
-      }
+    $btnOk.addEventListener('click', () => {
+      if (!this.capture.selectRect) return
       let url = this.capture.getImageUrl()
-      // remote.getCurrentWindow().hide()
-      // console.log({ url });
-      ipcRenderer.send('capture-screen', {
-        type: 'complete',
+      ipcRenderer.send('ScreenCapture:Complete', {
         url,
       })
-    }
-    $btnOk.addEventListener('click', selectCapture)
+    })
   }
 
   componentWillUnmount() {
@@ -101,8 +82,6 @@ class ScreenCapture extends Component {
         <canvas id="js-canvas" className="image-canvas"></canvas>
         <div id="js-size-info" className="size-info"></div>
         <div id="js-toolbar" className="toolbar">
-          <div id="js-tool-reset">reset</div>
-          &nbsp; &nbsp; &nbsp; &nbsp;
           <div id="js-tool-close">close</div>
           &nbsp; &nbsp; &nbsp; &nbsp;
           <div id="js-tool-ok">ok</div>

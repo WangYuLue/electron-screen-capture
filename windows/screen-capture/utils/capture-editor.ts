@@ -1,6 +1,6 @@
 const Event = require('events')
 import { screen } from 'electron';
-import { dataURLtoImage, imagetoCanvas } from '../utils';
+import { dataURLtoImage, imagetoCanvas } from '@utils';
 
 const CREATE_RECT = 1
 const MOVING_RECT = 2
