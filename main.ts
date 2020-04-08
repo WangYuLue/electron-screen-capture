@@ -8,8 +8,8 @@ import {
 } from 'electron';
 
 const path = require('path');
-const os = require('os')
-const url = require('url')
+const os = require('os');
+const url = require('url');
 
 let captureWins: any[] = [];
 
@@ -40,7 +40,7 @@ const openWindow = (window: Electron.BrowserWindow, page: string, query?: any) =
 const createCaptureScreen = () => {
   if (captureWins.length) return;
   // let displays = screen.getAllDisplays()
-  let displays = [screen.getPrimaryDisplay()]
+  let displays = [screen.getPrimaryDisplay()];
   captureWins = displays.map((display: any) => {
     let captureWin = new BrowserWindow({
       // window 使用 fullscreen,  mac 设置为 undefined, 不可为 false
@@ -59,22 +59,22 @@ const createCaptureScreen = () => {
         devTools: true,
         nodeIntegration: true,
       },
-    })
+    });
     // captureWin.webContents.openDevTools();
-    captureWin.setAlwaysOnTop(true, 'screen-saver')
-    captureWin.setVisibleOnAllWorkspaces(true)
-    captureWin.setFullScreenable(false)
+    captureWin.setAlwaysOnTop(true, 'screen-saver');
+    captureWin.setVisibleOnAllWorkspaces(true);
+    captureWin.setFullScreenable(false);
     openWindow(captureWin, 'screenCapture');
 
-    let { x, y } = screen.getCursorScreenPoint()
+    let { x, y } = screen.getCursorScreenPoint();
 
     if (x >= display.bounds.x &&
       x <= display.bounds.x + display.bounds.width &&
       y >= display.bounds.y &&
       y <= display.bounds.y + display.bounds.height) {
-      captureWin.focus()
+      captureWin.focus();
     } else {
-      captureWin.blur()
+      captureWin.blur();
     }
 
     // captureWin.on('closed', () => {
@@ -82,15 +82,15 @@ const createCaptureScreen = () => {
     // })
 
     return captureWin;
-  })
-}
+  });
+};
 
 const closeCaptureScreen = () => {
   if (captureWins) {
-    captureWins.forEach(win => win.close())
-    captureWins = []
+    captureWins.forEach(win => win.close());
+    captureWins = [];
   }
-}
+};
 
 function createWindow() {
   // 创建浏览器窗口
@@ -100,7 +100,7 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true
     }
-  })
+  });
 
 
   if (isDev) {
@@ -111,25 +111,25 @@ function createWindow() {
 
   globalShortcut.register('Esc', () => {
     if (captureWins) {
-      captureWins.forEach(win => win.close())
-      captureWins = []
+      captureWins.forEach(win => win.close());
+      captureWins = [];
     }
-  })
+  });
 }
 
 // 监听渲染程序发来的事件
 ipcMain.on('ScreenCapture:Open', () => {
   console.log('Main get ScreenCapture:Open');
   createCaptureScreen();
-})
+});
 ipcMain.on('ScreenCapture:Close', () => {
   console.log('Main get ScreenCapture:Close');
   closeCaptureScreen();
-})
+});
 ipcMain.on('ScreenCapture:Complete', (event: any, data: { url: string }) => {
   console.log('Main get ScreenCapture:Complete');
   mainWindow.webContents.send('ScreenCapture:Complete', data);
   closeCaptureScreen();
-})
+});
 
-app.whenReady().then(createWindow)
+app.whenReady().then(createWindow);
