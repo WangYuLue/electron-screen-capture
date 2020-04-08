@@ -89,3 +89,5 @@ export async function imagetoCanvas(image: HTMLImageElement, config: Image2Canva
   }
   return cvs;
 };
+
+export * from './capture-editor';
