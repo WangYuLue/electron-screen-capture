@@ -60,26 +60,28 @@ function getScreenSources(callback: (str: string) => void) {
     desktopCapturer.getSources({
       types: ['screen'],
       thumbnailSize: { width: 1, height: 1 },
-    }, async () => {
-      try {
-        const config: any = {
-          audio: false,
-          video: {
-            mandatory: {
-              chromeMediaSource: 'desktop',
-              chromeMediaSourceId: screen.getPrimaryDisplay().id,
-              minWidth: 1280,
-              minHeight: 720,
-              maxWidth: 8000,
-              maxHeight: 8000,
-            },
-          },
-        };
-        const stream: MediaStream = await navigator.mediaDevices.getUserMedia(config);
-        handleStream(stream);
-      } catch (e) {
-        handleError(e);
+    }, (e, sources) => {
+      const source = sources.filter(i => String(i.display_id) === String(screen.getPrimaryDisplay().id))[0];
+      if (!source) {
+        console.error('未找到屏幕源');
+        return;
       }
+      const config: any = {
+        audio: false,
+        video: {
+          mandatory: {
+            chromeMediaSource: 'desktop',
+            chromeMediaSourceId: source.id,
+            minWidth: 1280,
+            minHeight: 720,
+            maxWidth: 8000,
+            maxHeight: 8000
+          }
+        }
+      };
+      navigator.mediaDevices.getUserMedia(config).then((e) => {
+        handleStream(e);
+      }).catch(handleError);
     });
   } else {
     const config: any = {
